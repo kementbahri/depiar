@@ -1,0 +1,2 @@
+# depiar
+Sunucu Yönetimi
