@@ -92,7 +92,7 @@ wait_timeout = 28800
 interactive_timeout = 28800
 
 # Güvenlik ayarları
-default_authentication_plugin = caching_sha2_password
+default_authentication_plugin = mysql_native_password
 
 [client]
 default-character-set = utf8mb4
@@ -163,7 +163,7 @@ sleep 5
 echo -e "${YELLOW}Root şifresi sıfırlanıyor...${NC}"
 mysql -u root << EOF
 FLUSH PRIVILEGES;
-ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY '$MYSQL_ROOT_PASSWORD';
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_ROOT_PASSWORD';
 FLUSH PRIVILEGES;
 EOF
 
@@ -179,7 +179,7 @@ echo -e "${YELLOW}Veritabanı ve kullanıcı oluşturuluyor...${NC}"
 mysql -u root -p"$MYSQL_ROOT_PASSWORD" << EOF
 CREATE DATABASE IF NOT EXISTS depiar CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 DROP USER IF EXISTS 'depiar'@'localhost';
-CREATE USER 'depiar'@'localhost' IDENTIFIED WITH caching_sha2_password BY '$MYSQL_DEPIAR_PASSWORD';
+CREATE USER 'depiar'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_DEPIAR_PASSWORD';
 GRANT ALL PRIVILEGES ON depiar.* TO 'depiar'@'localhost';
 FLUSH PRIVILEGES;
 EOF
@@ -260,8 +260,35 @@ EOL
 systemctl daemon-reload
 systemctl enable depiar
 
-# Nginx yapılandırmasını kopyala
-echo -e "${YELLOW}Nginx yapılandırması kopyalanıyor...${NC}"
+# Nginx yapılandırmasını düzenle
+echo -e "${YELLOW}Nginx yapılandırması düzenleniyor...${NC}"
+cat > /etc/nginx/nginx.conf << 'EOL'
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+    worker_connections 768;
+}
+
+http {
+    sendfile on;
+    tcp_nopush on;
+    types_hash_max_size 2048;
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+    gzip on;
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+}
+EOL
+
+# Nginx site yapılandırmasını oluştur
 cat > /etc/nginx/sites-available/depiar << 'EOL'
 server {
     listen 80;
@@ -293,39 +320,16 @@ server {
 }
 EOL
 
-# Nginx ana yapılandırmasını kontrol et ve düzelt
-if ! grep -q "user www-data;" /etc/nginx/nginx.conf; then
-    sed -i '1i user www-data;' /etc/nginx/nginx.conf
-fi
-
-ln -s /etc/nginx/sites-available/depiar /etc/nginx/sites-enabled/
+# Nginx site yapılandırmasını etkinleştir
+ln -sf /etc/nginx/sites-available/depiar /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 
-# Dizin izinlerini ayarla
-echo -e "${YELLOW}Dizin izinleri ayarlanıyor...${NC}"
-chown -R www-data:www-data /var/www/depiar
-chmod -R 755 /var/www/depiar
-chmod -R 775 /var/www/depiar/media
-chmod -R 775 /var/www/depiar/static
+# Nginx yapılandırmasını test et
+nginx -t
 
-# Servisleri başlat
-echo -e "${YELLOW}Servisler başlatılıyor...${NC}"
+# Servisleri yeniden başlat
 systemctl restart nginx
-systemctl restart depiar
-
-# Servislerin durumunu kontrol et
-echo -e "${YELLOW}Servislerin durumu kontrol ediliyor...${NC}"
-if ! systemctl is-active --quiet nginx; then
-    echo -e "${RED}Nginx başlatılamadı!${NC}"
-    journalctl -u nginx -n 50
-    exit 1
-fi
-
-if ! systemctl is-active --quiet depiar; then
-    echo -e "${RED}Depiar servisi başlatılamadı!${NC}"
-    journalctl -u depiar -n 50
-    exit 1
-fi
+systemctl restart mysql
 
 # SSL sertifikası al (eğer domain girilmişse)
 if [[ $DOMAIN_OR_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
