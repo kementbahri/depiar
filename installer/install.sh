@@ -47,8 +47,7 @@ apt install -y \
     php8.1-readline \
     php8.1-sqlite3 \
     php8.1-xmlrpc \
-    php8.1-xsl \
-    php8.1-json
+    php8.1-xsl
 
 # MySQL root şifresini otomatik oluştur
 MYSQL_ROOT_PASSWORD=$(openssl rand -base64 32)
