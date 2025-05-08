@@ -15,6 +15,15 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+# Check and create www-data user if not exists
+echo -e "${YELLOW}Nginx kullanıcısı kontrol ediliyor...${NC}"
+if ! id "www-data" &>/dev/null; then
+    echo -e "${YELLOW}www-data kullanıcısı oluşturuluyor...${NC}"
+    useradd -r -s /bin/false www-data
+    groupadd -f www-data
+    usermod -a -G www-data www-data
+fi
+
 # Check system requirements
 echo -e "${YELLOW}Sistem gereksinimleri kontrol ediliyor...${NC}"
 if ! command -v python3 &> /dev/null; then
@@ -119,6 +128,13 @@ server {
     }
 }
 EOL
+
+# Create required directories for Nginx
+echo -e "${YELLOW}Nginx dizinleri oluşturuluyor...${NC}"
+mkdir -p /var/log/nginx
+mkdir -p /var/cache/nginx
+chown -R www-data:www-data /var/log/nginx
+chown -R www-data:www-data /var/cache/nginx
 
 # Enable Nginx site
 ln -sf /etc/nginx/sites-available/depiar /etc/nginx/sites-enabled/
