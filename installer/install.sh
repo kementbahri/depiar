@@ -48,6 +48,16 @@ echo -e "${YELLOW}Sistem bağımlılıkları yükleniyor...${NC}"
 apt-get update
 apt-get install -y python3-venv python3-dev build-essential libssl-dev libffi-dev nginx mysql-server lsof
 
+# Create Nginx directory structure
+echo -e "${YELLOW}Nginx dizin yapısı oluşturuluyor...${NC}"
+mkdir -p /etc/nginx/sites-available
+mkdir -p /etc/nginx/sites-enabled
+mkdir -p /etc/nginx/conf.d
+mkdir -p /var/log/nginx
+mkdir -p /var/cache/nginx
+chown -R www-data:www-data /var/log/nginx
+chown -R www-data:www-data /var/cache/nginx
+
 # Create application directory
 echo -e "${YELLOW}Uygulama dizini oluşturuluyor...${NC}"
 mkdir -p /var/www/depiar
@@ -181,13 +191,6 @@ server {
     }
 }
 EOL
-
-# Create required directories for Nginx
-echo -e "${YELLOW}Nginx dizinleri oluşturuluyor...${NC}"
-mkdir -p /var/log/nginx
-mkdir -p /var/cache/nginx
-chown -R www-data:www-data /var/log/nginx
-chown -R www-data:www-data /var/cache/nginx
 
 # Enable Nginx site
 ln -sf /etc/nginx/sites-available/depiar /etc/nginx/sites-enabled/
