@@ -183,6 +183,7 @@ EOF
 
 # Proje dizinini oluştur
 echo -e "${YELLOW}Proje dizini oluşturuluyor...${NC}"
+rm -rf /var/www/depiar
 mkdir -p /var/www/depiar
 cd /var/www/depiar
 
