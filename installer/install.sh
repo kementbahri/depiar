@@ -186,6 +186,11 @@ echo -e "${YELLOW}Proje dizini oluşturuluyor...${NC}"
 mkdir -p /var/www/depiar
 cd /var/www/depiar
 
+# Projeyi GitHub'dan klonla
+echo -e "${YELLOW}Proje GitHub'dan klonlanıyor...${NC}"
+git clone https://github.com/kementbahri/depiar.git .
+chown -R www-data:www-data /var/www/depiar
+
 # Python sanal ortamı oluştur
 echo -e "${YELLOW}Python sanal ortamı oluşturuluyor...${NC}"
 python3 -m venv venv
