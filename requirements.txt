@@ -1,0 +1,13 @@
+fastapi==0.68.1
+uvicorn==0.15.0
+sqlalchemy==1.4.23
+pydantic==1.8.2
+python-jose==3.3.0
+passlib==1.7.4
+python-multipart==0.0.5
+aiohttp==3.8.1
+python-dotenv==0.19.0
+bcrypt==3.2.0
+cryptography==3.4.7
+pyyaml==5.4.1
+pymysql==1.0.2 

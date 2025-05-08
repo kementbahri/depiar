@@ -1,0 +1,146 @@
+{
+    "common": {
+        "save": "Kaydet",
+        "cancel": "İptal",
+        "delete": "Sil",
+        "edit": "Düzenle",
+        "create": "Oluştur",
+        "search": "Ara",
+        "filter": "Filtrele",
+        "status": "Durum",
+        "actions": "İşlemler",
+        "yes": "Evet",
+        "no": "Hayır",
+        "confirm": "Onayla",
+        "back": "Geri",
+        "next": "İleri",
+        "loading": "Yükleniyor...",
+        "error": "Hata",
+        "success": "Başarılı",
+        "warning": "Uyarı",
+        "info": "Bilgi"
+    },
+    "auth": {
+        "login": "Giriş Yap",
+        "logout": "Çıkış Yap",
+        "register": "Kayıt Ol",
+        "forgot_password": "Şifremi Unuttum",
+        "remember_me": "Beni Hatırla",
+        "username": "Kullanıcı Adı",
+        "password": "Şifre",
+        "email": "E-posta",
+        "reset_password": "Şifre Sıfırla",
+        "change_password": "Şifre Değiştir",
+        "current_password": "Mevcut Şifre",
+        "new_password": "Yeni Şifre",
+        "confirm_password": "Şifre Tekrar"
+    },
+    "dashboard": {
+        "title": "Kontrol Paneli",
+        "total_customers": "Toplam Müşteri",
+        "active_domains": "Aktif Domain",
+        "total_disk_usage": "Toplam Disk Kullanımı",
+        "monthly_traffic": "Aylık Trafik",
+        "revenue": "Gelir",
+        "system_status": "Sistem Durumu",
+        "quick_actions": "Hızlı İşlemler"
+    },
+    "customers": {
+        "title": "Müşteriler",
+        "new_customer": "Yeni Müşteri",
+        "customer_list": "Müşteri Listesi",
+        "customer_details": "Müşteri Detayları",
+        "personal_info": "Kişisel Bilgiler",
+        "billing_info": "Fatura Bilgileri",
+        "service_details": "Servis Detayları",
+        "payment_history": "Ödeme Geçmişi",
+        "status": {
+            "active": "Aktif",
+            "inactive": "Pasif",
+            "suspended": "Askıya Alındı",
+            "pending": "Beklemede"
+        }
+    },
+    "domains": {
+        "title": "Domainler",
+        "new_domain": "Yeni Domain",
+        "domain_list": "Domain Listesi",
+        "domain_details": "Domain Detayları",
+        "dns_records": "DNS Kayıtları",
+        "email_accounts": "E-posta Hesapları",
+        "ftp_accounts": "FTP Hesapları",
+        "ssl_certificate": "SSL Sertifikası",
+        "backups": "Yedeklemeler",
+        "logs": "Log Kayıtları",
+        "statistics": "İstatistikler"
+    },
+    "databases": {
+        "title": "Veritabanları",
+        "new_database": "Yeni Veritabanı",
+        "database_list": "Veritabanı Listesi",
+        "database_details": "Veritabanı Detayları",
+        "tables": "Tablolar",
+        "sql_query": "SQL Sorgu",
+        "users": "Kullanıcılar",
+        "permissions": "İzinler",
+        "backups": "Yedekler",
+        "statistics": "İstatistikler",
+        "structure": "Yapı",
+        "data": "Veri",
+        "import": "İçe Aktar",
+        "export": "Dışa Aktar",
+        "optimize": "Optimize Et",
+        "repair": "Onar"
+    },
+    "service_plans": {
+        "title": "Servis Planları",
+        "new_plan": "Yeni Plan",
+        "plan_list": "Plan Listesi",
+        "plan_details": "Plan Detayları",
+        "features": "Özellikler",
+        "pricing": "Fiyatlandırma",
+        "limits": "Limitler",
+        "status": {
+            "active": "Aktif",
+            "inactive": "Pasif"
+        }
+    },
+    "reseller": {
+        "title": "Satıcı Yönetimi",
+        "new_reseller": "Yeni Satıcı",
+        "reseller_list": "Satıcı Listesi",
+        "reseller_details": "Satıcı Detayları",
+        "customer_list": "Müşteri Listesi",
+        "commission": "Komisyon",
+        "limits": "Limitler",
+        "statistics": "İstatistikler"
+    },
+    "settings": {
+        "title": "Ayarlar",
+        "general": "Genel Ayarlar",
+        "server": "Sunucu Ayarları",
+        "security": "Güvenlik Ayarları",
+        "backup": "Yedekleme Ayarları",
+        "email": "E-posta Ayarları",
+        "billing": "Fatura Ayarları",
+        "language": "Dil Ayarları",
+        "theme": "Tema Ayarları"
+    },
+    "reports": {
+        "title": "Raporlar",
+        "revenue": "Gelir Raporları",
+        "customers": "Müşteri İstatistikleri",
+        "domains": "Domain İstatistikleri",
+        "traffic": "Trafik Kullanımı",
+        "disk": "Disk Kullanımı",
+        "reseller": "Satıcı Performansı"
+    },
+    "notifications": {
+        "title": "Bildirimler",
+        "system": "Sistem Bildirimleri",
+        "customer": "Müşteri Bildirimleri",
+        "payment": "Ödeme Bildirimleri",
+        "ssl": "SSL Bildirimleri",
+        "domain": "Domain Bildirimleri"
+    }
+} 

@@ -1,0 +1,124 @@
+{
+    "common": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "create": "Create",
+        "search": "Search",
+        "filter": "Filter",
+        "status": "Status",
+        "actions": "Actions",
+        "welcome": "Welcome to Web Hosting Control Panel API"
+    },
+    "auth": {
+        "login": "Login",
+        "logout": "Logout",
+        "register": "Register",
+        "forgot_password": "Forgot Password",
+        "reset_password": "Reset Password",
+        "change_password": "Change Password",
+        "invalid_credentials": "Invalid username or password",
+        "account_locked": "Account is locked",
+        "password_expired": "Password has expired",
+        "session_expired": "Session has expired"
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "total_customers": "Total Customers",
+        "active_domains": "Active Domains",
+        "disk_usage": "Disk Usage",
+        "monthly_traffic": "Monthly Traffic",
+        "revenue": "Revenue",
+        "system_status": "System Status"
+    },
+    "customers": {
+        "title": "Customers",
+        "new_customer": "New Customer",
+        "customer_details": "Customer Details",
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "status": "Status",
+        "service_plan": "Service Plan",
+        "created_at": "Created At",
+        "last_login": "Last Login"
+    },
+    "domains": {
+        "title": "Domains",
+        "new_domain": "New Domain",
+        "domain_details": "Domain Details",
+        "domain_name": "Domain Name",
+        "customer": "Customer",
+        "status": "Status",
+        "ssl_status": "SSL Status",
+        "expiry_date": "Expiry Date",
+        "dns_records": "DNS Records",
+        "email_accounts": "Email Accounts"
+    },
+    "databases": {
+        "title": "Databases",
+        "new_database": "New Database",
+        "database_details": "Database Details",
+        "database_name": "Database Name",
+        "size": "Size",
+        "charset": "Character Set",
+        "user": "User",
+        "status": "Status",
+        "backup": "Backup",
+        "restore": "Restore"
+    },
+    "service_plans": {
+        "title": "Service Plans",
+        "new_plan": "New Plan",
+        "plan_details": "Plan Details",
+        "plan_name": "Plan Name",
+        "price": "Price",
+        "features": "Features",
+        "disk_space": "Disk Space",
+        "bandwidth": "Bandwidth",
+        "email_accounts": "Email Accounts",
+        "databases": "Databases"
+    },
+    "reseller": {
+        "title": "Reseller Management",
+        "new_reseller": "New Reseller",
+        "reseller_details": "Reseller Details",
+        "commission_rate": "Commission Rate",
+        "total_customers": "Total Customers",
+        "monthly_revenue": "Monthly Revenue",
+        "status": "Status"
+    },
+    "settings": {
+        "title": "Settings",
+        "general": "General Settings",
+        "security": "Security Settings",
+        "email": "Email Settings",
+        "backup": "Backup Settings",
+        "language": "Language Settings",
+        "language_changed": "Language changed successfully",
+        "invalid_language": "Invalid language selection"
+    },
+    "reports": {
+        "title": "Reports",
+        "income": "Income Reports",
+        "customers": "Customer Reports",
+        "usage": "Usage Reports",
+        "performance": "Performance Reports"
+    },
+    "notifications": {
+        "title": "Notifications",
+        "system": "System Notifications",
+        "payment": "Payment Notifications",
+        "domain": "Domain Notifications",
+        "security": "Security Notifications"
+    },
+    "errors": {
+        "internal_server_error": "Internal Server Error",
+        "validation_error": "Validation Error",
+        "not_found": "Not Found",
+        "unauthorized": "Unauthorized",
+        "forbidden": "Forbidden",
+        "bad_request": "Bad Request"
+    }
+} 

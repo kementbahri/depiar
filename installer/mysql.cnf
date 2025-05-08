@@ -1,0 +1,70 @@
+[mysqld]
+# Temel ayarlar
+user = mysql
+pid-file = /var/run/mysqld/mysqld.pid
+socket = /var/run/mysqld/mysqld.sock
+port = 3306
+basedir = /usr
+datadir = /var/lib/mysql
+tmpdir = /tmp
+lc-messages-dir = /usr/share/mysql
+bind-address = 127.0.0.1
+
+# Güvenlik ayarları
+local-infile = 0
+skip-symbolic-links
+skip-name-resolve
+skip-networking = 0
+max_allowed_packet = 16M
+max_connections = 100
+max_user_connections = 50
+wait_timeout = 60
+interactive_timeout = 60
+connect_timeout = 10
+
+# Buffer ve cache ayarları
+key_buffer_size = 32M
+sort_buffer_size = 4M
+read_buffer_size = 2M
+read_rnd_buffer_size = 4M
+join_buffer_size = 4M
+thread_cache_size = 8
+query_cache_size = 32M
+query_cache_limit = 2M
+table_open_cache = 400
+table_definition_cache = 400
+open_files_limit = 65535
+
+# InnoDB ayarları
+innodb_buffer_pool_size = 256M
+innodb_log_file_size = 64M
+innodb_log_buffer_size = 8M
+innodb_flush_log_at_trx_commit = 2
+innodb_flush_method = O_DIRECT
+innodb_file_per_table = 1
+innodb_thread_concurrency = 0
+innodb_read_io_threads = 4
+innodb_write_io_threads = 4
+
+# Log ayarları
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/mysql-slow.log
+long_query_time = 2
+log_error = /var/log/mysql/error.log
+log_queries_not_using_indexes = 1
+
+# Karakter seti
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+[mysqldump]
+quick
+quote-names
+max_allowed_packet = 16M
+
+[mysql]
+no-auto-rehash
+default-character-set = utf8mb4
+
+[isamchk]
+key_buffer_size = 16M 
