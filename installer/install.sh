@@ -190,9 +190,17 @@ rm -rf /var/www/depiar
 mkdir -p /var/www/depiar
 cd /var/www/depiar
 
+# GitHub token'ı al
+echo -e "${YELLOW}GitHub Personal Access Token gerekiyor.${NC}"
+echo -e "${YELLOW}Token oluşturmak için: https://github.com/settings/tokens${NC}"
+read -p "GitHub Personal Access Token'ı girin: " GITHUB_TOKEN
+
 # Projeyi GitHub'dan klonla
 echo -e "${YELLOW}Proje GitHub'dan klonlanıyor...${NC}"
-git clone https://github.com/kementbahri/depiar.git .
+git clone https://${GITHUB_TOKEN}@github.com/kementbahri/depiar.git .
+
+# Token'ı temizle
+unset GITHUB_TOKEN
 
 # requirements.txt dosyasını oluştur
 echo -e "${YELLOW}requirements.txt dosyası oluşturuluyor...${NC}"
