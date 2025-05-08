@@ -15,6 +15,13 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+# Check if port 8000 is in use
+echo -e "${YELLOW}Port 8000 kontrol ediliyor...${NC}"
+if lsof -i :8000 > /dev/null; then
+    echo -e "${RED}Port 8000 kullanımda! Lütfen diğer servisleri durdurun.${NC}"
+    exit 1
+fi
+
 # Check and create www-data user if not exists
 echo -e "${YELLOW}Nginx kullanıcısı kontrol ediliyor...${NC}"
 if ! id "www-data" &>/dev/null; then
@@ -39,7 +46,7 @@ fi
 # Install system dependencies
 echo -e "${YELLOW}Sistem bağımlılıkları yükleniyor...${NC}"
 apt-get update
-apt-get install -y python3-venv python3-dev build-essential libssl-dev libffi-dev nginx mysql-server
+apt-get install -y python3-venv python3-dev build-essential libssl-dev libffi-dev nginx mysql-server lsof
 
 # Create application directory
 echo -e "${YELLOW}Uygulama dizini oluşturuluyor...${NC}"
@@ -113,6 +120,10 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_buffering off;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
     }
 
     location /static {
@@ -153,16 +164,23 @@ systemctl enable mysql
 systemctl restart mysql
 sleep 5
 
+# Start Depiar service first
+echo -e "${YELLOW}Depiar servisi başlatılıyor...${NC}"
+systemctl enable depiar
+systemctl restart depiar
+sleep 10
+
+# Check if Depiar is running
+if ! curl -s http://127.0.0.1:8000 > /dev/null; then
+    echo -e "${RED}Depiar API servisi başlatılamadı!${NC}"
+    journalctl -u depiar -n 50
+    exit 1
+fi
+
 # Start Nginx
 echo -e "${YELLOW}Nginx başlatılıyor...${NC}"
 systemctl enable nginx
 systemctl restart nginx
-sleep 5
-
-# Start Depiar service
-echo -e "${YELLOW}Depiar servisi başlatılıyor...${NC}"
-systemctl enable depiar
-systemctl restart depiar
 sleep 5
 
 # Check service status
