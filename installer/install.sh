@@ -232,7 +232,7 @@ echo -e "${YELLOW}Servis dosyası kopyalanıyor...${NC}"
 cat > /etc/systemd/system/depiar.service << 'EOL'
 [Unit]
 Description=Depiar API Service
-After=network.target
+After=network.target mysql.service
 
 [Service]
 User=www-data
@@ -240,12 +240,17 @@ Group=www-data
 WorkingDirectory=/var/www/depiar
 Environment="PATH=/var/www/depiar/venv/bin"
 Environment="PYTHONPATH=/var/www/depiar"
-ExecStart=/var/www/depiar/venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000
+Environment="MYSQL_DEPIAR_PASSWORD=$MYSQL_DEPIAR_PASSWORD"
+ExecStart=/var/www/depiar/venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8000
 Restart=always
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
 EOL
+
+systemctl daemon-reload
+systemctl enable depiar
 
 # Nginx yapılandırmasını kopyala
 echo -e "${YELLOW}Nginx yapılandırması kopyalanıyor...${NC}"
@@ -287,6 +292,8 @@ rm -f /etc/nginx/sites-enabled/default
 echo -e "${YELLOW}Dizin izinleri ayarlanıyor...${NC}"
 chown -R www-data:www-data /var/www/depiar
 chmod -R 755 /var/www/depiar
+chmod -R 775 /var/www/depiar/media
+chmod -R 775 /var/www/depiar/static
 
 # Servisleri başlat
 echo -e "${YELLOW}Servisler başlatılıyor...${NC}"

@@ -7,11 +7,11 @@ from .file_permission import FilePermission
 from .ssh_server import SSHServer
 
 __all__ = [
-    "User",
-    "Customer",
-    "Domain",
-    "Server",
-    "ServicePlan",
-    "FilePermission",
-    "SSHServer"
+    'User',
+    'Customer',
+    'Domain',
+    'Server',
+    'ServicePlan',
+    'FilePermission',
+    'SSHServer'
 ] 
