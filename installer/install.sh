@@ -61,7 +61,13 @@ source venv/bin/activate
 # Install Python dependencies
 echo -e "${YELLOW}Python bağımlılıkları yükleniyor...${NC}"
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install uvicorn[standard] fastapi sqlalchemy pymysql python-jose passlib python-multipart bcrypt python-dotenv requests aiofiles jinja2 slowapi
+
+# Verify uvicorn installation
+if ! command -v uvicorn &> /dev/null; then
+    echo -e "${RED}Uvicorn kurulumu başarısız!${NC}"
+    exit 1
+fi
 
 # Configure MySQL
 echo -e "${YELLOW}MySQL yapılandırılıyor...${NC}"
@@ -82,6 +88,7 @@ Requires=mysql.service
 User=www-data
 Group=www-data
 WorkingDirectory=/var/www/depiar
+Environment="PATH=/var/www/depiar/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 Environment="PYTHONPATH=/var/www/depiar"
 Environment="MYSQL_DEPIAR_PASSWORD=${MYSQL_DEPIAR_PASSWORD}"
 ExecStart=/var/www/depiar/venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload --log-level debug
@@ -103,7 +110,42 @@ echo -e "${YELLOW}Nginx yapılandırılıyor...${NC}"
 rm -f /etc/nginx/sites-enabled/depiar
 rm -f /etc/nginx/sites-available/depiar
 
-# Create Nginx configuration
+# Create Nginx main configuration
+cat > /etc/nginx/nginx.conf << 'EOL'
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+
+events {
+    worker_connections 768;
+}
+
+http {
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+    server_tokens off;
+
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+
+    gzip on;
+    gzip_disable "msie6";
+
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+}
+EOL
+
+# Create Nginx site configuration
 cat > /etc/nginx/sites-available/depiar << 'EOL'
 server {
     listen 80 default_server;
