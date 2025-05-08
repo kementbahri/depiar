@@ -144,6 +144,8 @@ systemctl stop mysql
 
 # MySQL'i güvenli modda başlat
 echo -e "${YELLOW}MySQL güvenli modda başlatılıyor...${NC}"
+mkdir -p /var/run/mysqld
+chown mysql:mysql /var/run/mysqld
 mysqld_safe --skip-grant-tables --skip-networking &
 sleep 5
 
@@ -151,7 +153,7 @@ sleep 5
 echo -e "${YELLOW}Root şifresi sıfırlanıyor...${NC}"
 mysql -u root << EOF
 FLUSH PRIVILEGES;
-ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_ROOT_PASSWORD';
 FLUSH PRIVILEGES;
 EOF
 
