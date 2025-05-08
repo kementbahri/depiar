@@ -6,6 +6,7 @@ set -e
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # Function to create a new virtual host
@@ -108,5 +109,69 @@ case "$1" in
         exit 1
         ;;
 esac
+
+# Nginx dizinlerini oluştur
+echo -e "${YELLOW}Nginx dizinleri oluşturuluyor...${NC}"
+mkdir -p /etc/nginx/sites-available
+mkdir -p /etc/nginx/sites-enabled
+mkdir -p /var/log/nginx
+chown -R www-data:www-data /var/log/nginx
+
+# Nginx ana yapılandırmasını oluştur
+echo -e "${YELLOW}Nginx ana yapılandırması oluşturuluyor...${NC}"
+cat > /etc/nginx/nginx.conf << 'EOL'
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+
+events {
+    worker_connections 768;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+    include /etc/nginx/sites-enabled/*;
+}
+EOL
+
+# Nginx site yapılandırmasını oluştur
+echo -e "${YELLOW}Nginx site yapılandırması oluşturuluyor...${NC}"
+cat > /etc/nginx/sites-available/depiar << 'EOL'
+server {
+    listen 80 default_server;
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+EOL
+
+# Nginx site yapılandırmasını etkinleştir
+echo -e "${YELLOW}Nginx site yapılandırması etkinleştiriliyor...${NC}"
+ln -sf /etc/nginx/sites-available/depiar /etc/nginx/sites-enabled/
+rm -f /etc/nginx/sites-enabled/default
+
+# Nginx yapılandırmasını test et
+echo -e "${YELLOW}Nginx yapılandırması test ediliyor...${NC}"
+nginx -t
+
+# Nginx servisini yeniden başlat
+echo -e "${YELLOW}Nginx servisi yeniden başlatılıyor...${NC}"
+systemctl restart nginx
+
+# Servis durumunu kontrol et
+if systemctl is-active --quiet nginx; then
+    echo -e "${GREEN}Nginx başarıyla başlatıldı!${NC}"
+else
+    echo -e "${RED}Nginx başlatılamadı!${NC}"
+    journalctl -u nginx -n 50
+    exit 1
+fi
 
 exit 0 
