@@ -21,16 +21,44 @@ echo
 echo -e "${YELLOW}Sistem güncellemeleri yapılıyor...${NC}"
 apt update && apt upgrade -y
 
-# MySQL'i tamamen kaldır ve yeniden yükle
-echo -e "${YELLOW}MySQL yeniden yükleniyor...${NC}"
+# MySQL'i tamamen kaldır
+echo -e "${YELLOW}MySQL tamamen kaldırılıyor...${NC}"
 systemctl stop mysql
-apt remove --purge mysql-server mysql-client mysql-common -y
+systemctl stop mysqld
+
+# Tüm MySQL paketlerini kaldır
+apt remove --purge mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-* -y
+apt remove --purge mariadb-server mariadb-client mariadb-common mariadb-server-core-* mariadb-client-core-* -y
+apt remove --purge mysql-* mariadb-* -y
+
+# Otomatik kaldırma ve temizleme
 apt autoremove -y
 apt autoclean
+
+# MySQL dizinlerini temizle
+echo -e "${YELLOW}MySQL dizinleri temizleniyor...${NC}"
 rm -rf /var/lib/mysql
+rm -rf /var/lib/mysql-*
 rm -rf /var/log/mysql
+rm -rf /var/log/mysql-*
 rm -rf /etc/mysql
+rm -rf /etc/mysql-*
 rm -rf /var/run/mysqld
+rm -rf /run/mysqld
+rm -rf /usr/share/mysql
+rm -rf /usr/share/mysql-*
+rm -rf /usr/lib/mysql
+rm -rf /usr/lib/mysql-*
+
+# MySQL kullanıcılarını temizle
+echo -e "${YELLOW}MySQL kullanıcıları temizleniyor...${NC}"
+deluser mysql
+deluser mysql-*
+delgroup mysql
+delgroup mysql-*
+
+# MySQL'i yeniden yükle
+echo -e "${YELLOW}MySQL yeniden yükleniyor...${NC}"
 apt install -y mysql-server
 
 # MySQL socket dizinini oluştur ve izinlerini ayarla
