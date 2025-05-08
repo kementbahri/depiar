@@ -189,6 +189,24 @@ cd /var/www/depiar
 # Projeyi GitHub'dan klonla
 echo -e "${YELLOW}Proje GitHub'dan klonlanıyor...${NC}"
 git clone https://github.com/kementbahri/depiar.git .
+
+# requirements.txt dosyasını oluştur
+echo -e "${YELLOW}requirements.txt dosyası oluşturuluyor...${NC}"
+cat > requirements.txt << 'EOL'
+fastapi==0.104.1
+uvicorn==0.24.0
+sqlalchemy==2.0.23
+pymysql==1.1.0
+python-jose==3.3.0
+passlib==1.7.4
+python-multipart==0.0.6
+bcrypt==4.0.1
+python-dotenv==1.0.0
+requests==2.31.0
+aiofiles==23.2.1
+jinja2==3.1.2
+EOL
+
 chown -R www-data:www-data /var/www/depiar
 
 # Python sanal ortamı oluştur
