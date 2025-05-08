@@ -104,12 +104,19 @@ apt install -y \
     php8.1-xmlrpc \
     php8.1-xsl
 
-# MySQL root şifresini oluştur (özel karakterler olmadan)
-MYSQL_ROOT_PASSWORD=$(openssl rand -hex 16)
-MYSQL_DEPIAR_PASSWORD=$(openssl rand -hex 16)
+# MySQL root şifresini oluştur
+echo -e "${YELLOW}MySQL root şifresi oluşturuluyor...${NC}"
+# Özel karakterler içermeyen güvenli şifre oluştur
+MYSQL_ROOT_PASSWORD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 16)
+MYSQL_DEPIAR_PASSWORD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 16)
 
 # MySQL'i yapılandır
 echo -e "${YELLOW}MySQL yapılandırılıyor...${NC}"
+# Önce root şifresini sıfırla
+mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';"
+mysql -e "FLUSH PRIVILEGES;"
+
+# Sonra yeni şifreyi ayarla
 mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_ROOT_PASSWORD';"
 mysql -e "CREATE DATABASE IF NOT EXISTS depiar CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 mysql -e "DROP USER IF EXISTS 'depiar'@'localhost';"
