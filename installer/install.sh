@@ -281,7 +281,6 @@ http {
     default_type application/octet-stream;
     access_log /var/log/nginx/access.log;
     error_log /var/log/nginx/error.log;
-    include /etc/nginx/conf.d/*.conf;
     include /etc/nginx/sites-enabled/*;
 }
 EOL
@@ -289,31 +288,13 @@ EOL
 # Nginx site yapılandırmasını oluştur
 cat > /etc/nginx/sites-available/depiar << 'EOL'
 server {
-    listen 80;
+    listen 80 default_server;
     server_name _;
-
-    client_max_body_size 100M;
 
     location / {
         proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 300;
-        proxy_connect_timeout 300;
-    }
-
-    location /static {
-        alias /var/www/depiar/static;
-        expires 30d;
-        add_header Cache-Control "public, no-transform";
-    }
-
-    location /media {
-        alias /var/www/depiar/media;
-        expires 30d;
-        add_header Cache-Control "public, no-transform";
     }
 }
 EOL
@@ -321,6 +302,10 @@ EOL
 # Nginx site yapılandırmasını etkinleştir
 ln -sf /etc/nginx/sites-available/depiar /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
+
+# Nginx dizinlerini oluştur
+mkdir -p /var/log/nginx
+chown -R www-data:www-data /var/log/nginx
 
 # Nginx yapılandırmasını test et
 nginx -t
