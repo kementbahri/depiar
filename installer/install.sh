@@ -241,7 +241,7 @@ WorkingDirectory=/var/www/depiar
 Environment="PATH=/var/www/depiar/venv/bin"
 Environment="PYTHONPATH=/var/www/depiar"
 Environment="MYSQL_DEPIAR_PASSWORD=$MYSQL_DEPIAR_PASSWORD"
-ExecStart=/var/www/depiar/venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8000
+ExecStart=/var/www/depiar/venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
 Restart=always
 RestartSec=5
 
