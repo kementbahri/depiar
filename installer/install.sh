@@ -81,16 +81,73 @@ echo -e "${YELLOW}Dizin izinleri ayarlanıyor...${NC}"
 chown -R www-data:www-data /var/www/depiar
 chmod -R 755 /var/www/depiar
 
+# Configure Nginx
+echo -e "${YELLOW}Nginx yapılandırılıyor...${NC}"
+# Remove existing configuration
+rm -f /etc/nginx/sites-enabled/depiar
+rm -f /etc/nginx/sites-available/depiar
+
+# Create Nginx configuration
+cat > /etc/nginx/sites-available/depiar << 'EOL'
+server {
+    listen 80 default_server;
+    server_name _;
+
+    client_max_body_size 100M;
+    proxy_read_timeout 300;
+    proxy_connect_timeout 300;
+    proxy_send_timeout 300;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /static {
+        alias /var/www/depiar/static;
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+    }
+
+    location /media {
+        alias /var/www/depiar/media;
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+    }
+}
+EOL
+
+# Enable Nginx site
+ln -sf /etc/nginx/sites-available/depiar /etc/nginx/sites-enabled/
+rm -f /etc/nginx/sites-enabled/default
+
+# Test Nginx configuration
+nginx -t
+
 # Enable and start services
 echo -e "${YELLOW}Servisler etkinleştiriliyor ve başlatılıyor...${NC}"
 systemctl daemon-reload
-systemctl enable mysql
-systemctl enable nginx
-systemctl enable depiar
 
+# Start MySQL first
+echo -e "${YELLOW}MySQL başlatılıyor...${NC}"
+systemctl enable mysql
 systemctl restart mysql
+sleep 5
+
+# Start Nginx
+echo -e "${YELLOW}Nginx başlatılıyor...${NC}"
+systemctl enable nginx
 systemctl restart nginx
+sleep 5
+
+# Start Depiar service
+echo -e "${YELLOW}Depiar servisi başlatılıyor...${NC}"
+systemctl enable depiar
 systemctl restart depiar
+sleep 5
 
 # Check service status
 echo -e "${YELLOW}Servis durumları kontrol ediliyor...${NC}"
