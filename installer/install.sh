@@ -21,6 +21,29 @@ echo
 echo -e "${YELLOW}Sistem güncellemeleri yapılıyor...${NC}"
 apt update && apt upgrade -y
 
+# MySQL'i tamamen kaldır ve yeniden yükle
+echo -e "${YELLOW}MySQL yeniden yükleniyor...${NC}"
+systemctl stop mysql
+apt remove --purge mysql-server mysql-client mysql-common -y
+apt autoremove -y
+apt autoclean
+rm -rf /var/lib/mysql
+rm -rf /var/log/mysql
+rm -rf /etc/mysql
+rm -rf /var/run/mysqld
+apt install -y mysql-server
+
+# MySQL socket dizinini oluştur ve izinlerini ayarla
+echo -e "${YELLOW}MySQL socket dizini oluşturuluyor...${NC}"
+mkdir -p /var/run/mysqld
+chown mysql:mysql /var/run/mysqld
+chmod 755 /var/run/mysqld
+
+# MySQL servisini başlat
+echo -e "${YELLOW}MySQL servisi başlatılıyor...${NC}"
+systemctl start mysql
+systemctl enable mysql
+
 # Gerekli paketleri yükle
 echo -e "${YELLOW}Gerekli paketler yükleniyor...${NC}"
 apt install -y \
@@ -28,7 +51,6 @@ apt install -y \
     python3-pip \
     python3-venv \
     nginx \
-    mysql-server \
     php8.1-fpm \
     php8.1-mysql \
     php8.1-curl \
@@ -49,14 +71,15 @@ apt install -y \
     php8.1-xmlrpc \
     php8.1-xsl
 
-# MySQL root şifresini otomatik oluştur
-MYSQL_ROOT_PASSWORD=$(openssl rand -base64 32)
-MYSQL_DEPIAR_PASSWORD=$(openssl rand -base64 32)
+# MySQL root şifresini oluştur (özel karakterler olmadan)
+MYSQL_ROOT_PASSWORD=$(openssl rand -hex 16)
+MYSQL_DEPIAR_PASSWORD=$(openssl rand -hex 16)
 
 # MySQL'i yapılandır
 echo -e "${YELLOW}MySQL yapılandırılıyor...${NC}"
 mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_ROOT_PASSWORD';"
-mysql -e "CREATE DATABASE depiar CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -e "CREATE DATABASE IF NOT EXISTS depiar CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -e "DROP USER IF EXISTS 'depiar'@'localhost';"
 mysql -e "CREATE USER 'depiar'@'localhost' IDENTIFIED BY '$MYSQL_DEPIAR_PASSWORD';"
 mysql -e "GRANT ALL PRIVILEGES ON depiar.* TO 'depiar'@'localhost';"
 mysql -e "FLUSH PRIVILEGES;"
