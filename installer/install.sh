@@ -227,14 +227,58 @@ echo -e "${YELLOW}Servis dosyası kopyalanıyor...${NC}"
 cp installer/depiar.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable depiar
-systemctl start depiar
 
 # Nginx yapılandırmasını kopyala
 echo -e "${YELLOW}Nginx yapılandırması kopyalanıyor...${NC}"
-cp installer/nginx.conf /etc/nginx/sites-available/depiar
+cat > /etc/nginx/sites-available/depiar << 'EOL'
+server {
+    listen 80;
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /static {
+        alias /var/www/depiar/static;
+    }
+
+    location /media {
+        alias /var/www/depiar/media;
+    }
+}
+EOL
+
 ln -s /etc/nginx/sites-available/depiar /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
+
+# Dizin izinlerini ayarla
+echo -e "${YELLOW}Dizin izinleri ayarlanıyor...${NC}"
+chown -R www-data:www-data /var/www/depiar
+chmod -R 755 /var/www/depiar
+
+# Servisleri başlat
+echo -e "${YELLOW}Servisler başlatılıyor...${NC}"
 systemctl restart nginx
+systemctl restart depiar
+
+# Servislerin durumunu kontrol et
+echo -e "${YELLOW}Servislerin durumu kontrol ediliyor...${NC}"
+if ! systemctl is-active --quiet nginx; then
+    echo -e "${RED}Nginx başlatılamadı!${NC}"
+    journalctl -u nginx -n 50
+    exit 1
+fi
+
+if ! systemctl is-active --quiet depiar; then
+    echo -e "${RED}Depiar servisi başlatılamadı!${NC}"
+    journalctl -u depiar -n 50
+    exit 1
+fi
 
 # SSL sertifikası al (eğer domain girilmişse)
 if [[ $DOMAIN_OR_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -272,9 +316,8 @@ echo -e "Admin Kullanıcı Adı: ${GREEN}$ADMIN_USERNAME${NC}"
 echo -e "MySQL Root Şifresi: ${GREEN}$MYSQL_ROOT_PASSWORD${NC}"
 echo -e "MySQL Depiar Şifresi: ${GREEN}$MYSQL_DEPIAR_PASSWORD${NC}"
 
-# Servislerin durumunu kontrol et
-echo -e "${YELLOW}Servislerin durumu kontrol ediliyor...${NC}"
+# Servislerin durumunu göster
+echo -e "${YELLOW}Servislerin durumu:${NC}"
 systemctl status nginx
 systemctl status mysql
-systemctl status php8.1-fpm
 systemctl status depiar 
