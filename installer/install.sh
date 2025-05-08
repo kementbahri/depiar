@@ -39,6 +39,39 @@ mkdir -p /var/run/mysqld
 chown mysql:mysql /var/run/mysqld
 chmod 755 /var/run/mysqld
 
+# MySQL yapılandırmasını düzenle
+echo -e "${YELLOW}MySQL yapılandırması düzenleniyor...${NC}"
+cat > /etc/mysql/mysql.conf.d/mysqld.cnf << 'EOL'
+[mysqld]
+pid-file        = /var/run/mysqld/mysqld.pid
+socket          = /var/run/mysqld/mysqld.sock
+datadir         = /var/lib/mysql
+log-error       = /var/log/mysql/error.log
+bind-address    = 0.0.0.0
+mysqlx-bind-address = 0.0.0.0
+
+# Karakter seti ayarları
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# Performans ayarları
+innodb_buffer_pool_size = 256M
+innodb_log_file_size = 64M
+innodb_flush_log_at_trx_commit = 2
+innodb_flush_method = O_DIRECT
+
+# Bağlantı ayarları
+max_connections = 100
+wait_timeout = 28800
+interactive_timeout = 28800
+
+[client]
+default-character-set = utf8mb4
+
+[mysql]
+default-character-set = utf8mb4
+EOL
+
 # MySQL servisini başlat
 echo -e "${YELLOW}MySQL servisi başlatılıyor...${NC}"
 systemctl start mysql
