@@ -1,0 +1,13 @@
+[Unit]
+Description=Depiar API Service
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/depiar/backend
+Environment="PATH=/var/www/depiar/venv/bin"
+ExecStart=/var/www/depiar/venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000
+
+[Install]
+WantedBy=multi-user.target 

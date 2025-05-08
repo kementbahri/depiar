@@ -1,215 +1,175 @@
 # Depiar Kurulum Kılavuzu
 
-## 1. Sunucu Hazırlığı
+## 1. Otomatik Kurulum (Önerilen)
 
-### 1.1. Sistem Gereksinimleri
+Tek komutla kurulum için:
+
+```bash
+wget -O install.sh https://raw.githubusercontent.com/kementbahri/depiar/main/installer/install.sh
+chmod +x install.sh
+./install.sh
+```
+
+Kurulum betiği sizden şu bilgileri isteyecektir:
+- Domain adı veya IP adresi
+- Admin kullanıcı adı
+- Admin şifresi
+
+Kurulum tamamlandığında size şu bilgiler verilecektir:
+- MySQL root şifresi
+- MySQL Depiar kullanıcı şifresi
+- Secret key
+
+Bu bilgileri güvenli bir yerde saklamayı unutmayın!
+
+## 2. Manuel Kurulum
+
+Eğer otomatik kurulum yerine manuel kurulum yapmak isterseniz:
+
+### Sistem Gereksinimleri
+
 - Ubuntu 20.04 LTS veya üzeri
-- En az 2 CPU çekirdek
-- En az 4GB RAM
+- En az 1GB RAM
 - En az 20GB disk alanı
 
-### 1.2. Sistem Güncellemesi
-```bash
-# Sistemi güncelle
-sudo apt update
-sudo apt upgrade -y
+### Adım 1: Sistem Güncellemesi
 
-# Gerekli paketleri yükle
-sudo apt install -y python3.10 python3.10-venv python3-pip nginx mysql-server redis-server git
+```bash
+apt update && apt upgrade -y
 ```
 
-## 2. Depiar Kurulumu
+### Adım 2: Gerekli Paketlerin Kurulumu
 
-### 2.1. Proje Dosyalarını İndirme
 ```bash
-# Proje dizinini oluştur
-sudo mkdir -p /opt/depiar
-cd /opt/depiar
-
-# Projeyi GitHub'dan indir
-sudo git clone https://github.com/your-repo/depiar.git .
+apt install -y python3 python3-pip python3-venv nginx mysql-server redis-server fail2ban ufw
 ```
 
-### 2.2. Python Ortamı Hazırlama
+### Adım 3: MySQL Kurulumu
+
 ```bash
-# Python sanal ortam oluştur
-python3.10 -m venv venv
-source venv/bin/activate
+# MySQL güvenli kurulum
+mysql_secure_installation
 
-# Gerekli paketleri yükle
-pip install -r requirements.txt
-```
-
-### 2.3. Veritabanı Kurulumu
-```bash
-# MySQL güvenlik ayarları
-sudo mysql_secure_installation
-
-# Veritabanı oluştur
+# Depiar veritabanı ve kullanıcı oluşturma
 mysql -u root -p
 ```
 
-MySQL içinde şu komutları çalıştırın:
+MySQL'de çalıştırılacak komutlar:
 ```sql
 CREATE DATABASE depiar CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'depiar'@'localhost' IDENTIFIED BY 'güçlü-bir-şifre-seçin';
+CREATE USER 'depiar'@'localhost' IDENTIFIED BY 'şifreniz';
 GRANT ALL PRIVILEGES ON depiar.* TO 'depiar'@'localhost';
 FLUSH PRIVILEGES;
-exit;
 ```
 
-### 2.4. Ortam Değişkenleri
-```bash
-# .env dosyası oluştur
-sudo nano /opt/depiar/.env
-```
-
-Aşağıdaki içeriği ekleyin (şifreleri kendi seçtiğiniz değerlerle değiştirin):
-```env
-DATABASE_URL=mysql://depiar:güçlü-bir-şifre-seçin@localhost/depiar
-SECRET_KEY=rastgele-uzun-bir-string-oluşturun
-ALLOWED_HOSTS=sizin-domain.com
-ALLOWED_ORIGINS=https://sizin-domain.com
-```
-
-### 2.5. Nginx Yapılandırması
-```bash
-# Nginx konfigürasyonu oluştur
-sudo nano /etc/nginx/sites-available/depiar
-```
-
-Aşağıdaki konfigürasyonu ekleyin:
-```nginx
-server {
-    listen 80;
-    server_name sizin-domain.com;
-
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-
-    location /static {
-        alias /opt/depiar/static;
-    }
-}
-```
+### Adım 4: Proje Dosyalarının Kurulumu
 
 ```bash
-# Nginx konfigürasyonunu etkinleştir
-sudo ln -s /etc/nginx/sites-available/depiar /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
+# Proje dizini oluştur
+mkdir -p /var/www/depiar
+cd /var/www/depiar
+
+# Projeyi indir
+git clone https://github.com/kementbahri/depiar.git .
+
+# Python sanal ortamı oluştur
+python3 -m venv venv
+source venv/bin/activate
+
+# Bağımlılıkları yükle
+pip install -r requirements.txt
 ```
 
-### 2.6. SSL Sertifikası
+### Adım 5: Ortam Değişkenlerinin Ayarlanması
+
+`.env` dosyası oluşturun:
 ```bash
-# Certbot kurulumu
-sudo apt install -y certbot python3-certbot-nginx
-
-# SSL sertifikası al
-sudo certbot --nginx -d sizin-domain.com
+cat > .env << EOL
+DATABASE_URL=mysql://depiar:şifreniz@localhost/depiar
+SECRET_KEY=güvenli-bir-anahtar
+REDIS_URL=redis://localhost:6379/0
+DOMAIN=alan-adınız
+EOL
 ```
 
-### 2.7. Systemd Servis Dosyası
+### Adım 6: Nginx Yapılandırması
+
 ```bash
-# Servis dosyası oluştur
-sudo nano /etc/systemd/system/depiar.service
+# Nginx yapılandırma dosyasını kopyala
+cp nginx.conf /etc/nginx/nginx.conf
+
+# SSL sertifikası al (domain kullanıyorsanız)
+certbot --nginx -d alan-adınız
 ```
 
-Aşağıdaki içeriği ekleyin:
-```ini
+### Adım 7: Servis Oluşturma
+
+```bash
+# Systemd servis dosyası oluştur
+cat > /etc/systemd/system/depiar.service << EOL
 [Unit]
-Description=Depiar Web Application
+Description=Depiar API Service
 After=network.target
 
 [Service]
 User=www-data
 Group=www-data
-WorkingDirectory=/opt/depiar
-Environment="PATH=/opt/depiar/venv/bin"
-ExecStart=/opt/depiar/venv/bin/gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
+WorkingDirectory=/var/www/depiar
+Environment="PATH=/var/www/depiar/venv/bin"
+ExecStart=/var/www/depiar/venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000
 
 [Install]
 WantedBy=multi-user.target
-```
+EOL
 
-```bash
 # Servisi başlat
-sudo systemctl enable depiar
-sudo systemctl start depiar
+systemctl daemon-reload
+systemctl enable depiar
+systemctl start depiar
 ```
 
-## 3. Güvenlik Ayarları
+### Adım 8: Güvenlik Ayarları
 
-### 3.1. Güvenlik Duvarı
 ```bash
-# Güvenlik duvarını yapılandır
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw enable
+# Güvenlik duvarı ayarları
+ufw allow ssh
+ufw allow http
+ufw allow https
+ufw enable
+
+# Fail2ban yapılandırması
+cp fail2ban.conf /etc/fail2ban/jail.local
+systemctl restart fail2ban
 ```
 
-### 3.2. Fail2ban Kurulumu
+## Kurulum Sonrası
+
+Kurulum tamamlandıktan sonra kontrol paneline şu adreslerden erişebilirsiniz:
+- Domain kullanıyorsanız: `https://alan-adınız`
+- IP adresi kullanıyorsanız: `http://ip-adresiniz`
+
+## Sorun Giderme
+
+1. Servis çalışmıyor:
 ```bash
-# Fail2ban kurulumu
-sudo apt install -y fail2ban
-sudo systemctl enable fail2ban
-sudo systemctl start fail2ban
+systemctl status depiar
+journalctl -u depiar
 ```
 
-## 4. Kurulum Kontrolü
-
-### 4.1. Servis Durumu Kontrolü
+2. Nginx hataları:
 ```bash
-# Depiar servisinin durumunu kontrol et
-sudo systemctl status depiar
-
-# Nginx durumunu kontrol et
-sudo systemctl status nginx
+nginx -t
+systemctl status nginx
 ```
 
-### 4.2. Log Kontrolü
+3. MySQL bağlantı sorunları:
 ```bash
-# Depiar loglarını kontrol et
-sudo journalctl -u depiar -n 50
-
-# Nginx loglarını kontrol et
-sudo tail -f /var/log/nginx/error.log
-```
-
-## 5. Sorun Giderme
-
-### 5.1. Yaygın Sorunlar
-
-1. **Servis Başlatılamıyor**
-```bash
-# Logları kontrol et
-sudo journalctl -u depiar -n 50
-
-# Dizin izinlerini kontrol et
-sudo chown -R www-data:www-data /opt/depiar
-```
-
-2. **Nginx 502 Hatası**
-```bash
-# Nginx konfigürasyonunu kontrol et
-sudo nginx -t
-
-# Depiar servisinin çalıştığından emin ol
-sudo systemctl status depiar
-```
-
-3. **Veritabanı Bağlantı Hatası**
-```bash
-# MySQL bağlantısını test et
+systemctl status mysql
 mysql -u depiar -p
 ```
 
-### 5.2. Destek
+## Destek
 
-Teknik destek için:
-- Email: support@depiar.com
-- Dokümantasyon: https://docs.depiar.com
-- GitHub Issues: https://github.com/your-repo/depiar/issues 
+Sorun yaşarsanız:
+1. GitHub Issues: https://github.com/kementbahri/depiar/issues
+2. E-posta: kementbahri@gmail.com 
