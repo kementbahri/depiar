@@ -172,4 +172,4 @@ mysql -u depiar -p
 
 Sorun yaşarsanız:
 1. GitHub Issues: https://github.com/kementbahri/depiar/issues
-2. E-posta: kementbahri@gmail.com 
+2. E-posta: kementbahri@gmail.com
