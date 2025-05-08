@@ -129,10 +129,26 @@ events {
 }
 
 http {
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+    server_tokens off;
+
     include /etc/nginx/mime.types;
     default_type application/octet-stream;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+
     access_log /var/log/nginx/access.log;
     error_log /var/log/nginx/error.log;
+
+    gzip on;
+    gzip_disable "msie6";
+
+    include /etc/nginx/conf.d/*.conf;
     include /etc/nginx/sites-enabled/*;
 }
 EOL
@@ -144,10 +160,29 @@ server {
     listen 80 default_server;
     server_name _;
 
+    client_max_body_size 100M;
+    proxy_read_timeout 300;
+    proxy_connect_timeout 300;
+    proxy_send_timeout 300;
+
     location / {
         proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /static {
+        alias /var/www/depiar/static;
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+    }
+
+    location /media {
+        alias /var/www/depiar/media;
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
     }
 }
 EOL

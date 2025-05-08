@@ -4,15 +4,16 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 # Veritabanı bağlantı bilgileri
-DB_USER = "depiar"
-DB_PASSWORD = os.getenv("MYSQL_DEPIAR_PASSWORD", "Q8UOULk10w0SglJn")  # Varsayılan şifre
-DB_HOST = "localhost"
-DB_NAME = "depiar"
+MYSQL_USER = "depiar"
+MYSQL_PASSWORD = os.getenv("MYSQL_DEPIAR_PASSWORD", "depiar")
+MYSQL_HOST = "localhost"
+MYSQL_PORT = "3306"
+MYSQL_DATABASE = "depiar"
 
-# Veritabanı URL'si
-SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+# SQLAlchemy bağlantı URL'si
+SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"
 
-# Veritabanı motoru
+# Engine oluştur
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
     pool_pre_ping=True,
@@ -21,7 +22,7 @@ engine = create_engine(
     max_overflow=10
 )
 
-# Oturum oluşturucu
+# SessionLocal sınıfı
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Base sınıfı
