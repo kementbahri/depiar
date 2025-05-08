@@ -293,6 +293,11 @@ server {
 }
 EOL
 
+# Nginx ana yapılandırmasını kontrol et ve düzelt
+if ! grep -q "user www-data;" /etc/nginx/nginx.conf; then
+    sed -i '1i user www-data;' /etc/nginx/nginx.conf
+fi
+
 ln -s /etc/nginx/sites-available/depiar /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 
