@@ -209,6 +209,7 @@ python-dotenv==1.0.0
 requests==2.31.0
 aiofiles==23.2.1
 jinja2==3.1.2
+slowapi==0.1.8
 EOL
 
 chown -R www-data:www-data /var/www/depiar
@@ -235,20 +236,28 @@ server {
     listen 80;
     server_name _;
 
+    client_max_body_size 100M;
+
     location / {
         proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 300;
+        proxy_connect_timeout 300;
     }
 
     location /static {
         alias /var/www/depiar/static;
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
     }
 
     location /media {
         alias /var/www/depiar/media;
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
     }
 }
 EOL
