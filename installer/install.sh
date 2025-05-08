@@ -227,12 +227,12 @@ pip install -r requirements.txt
 echo -e "${YELLOW}PYTHONPATH ayarlanıyor...${NC}"
 export PYTHONPATH=/var/www/depiar:$PYTHONPATH
 
-# Servis dosyasını kopyala
-echo -e "${YELLOW}Servis dosyası kopyalanıyor...${NC}"
+# Servis dosyası oluştur
 cat > /etc/systemd/system/depiar.service << 'EOL'
 [Unit]
 Description=Depiar API Service
 After=network.target mysql.service
+Requires=mysql.service
 
 [Service]
 User=www-data
@@ -240,10 +240,9 @@ Group=www-data
 WorkingDirectory=/var/www/depiar
 Environment="PATH=/var/www/depiar/venv/bin"
 Environment="PYTHONPATH=/var/www/depiar"
-Environment="MYSQL_DEPIAR_PASSWORD=$MYSQL_DEPIAR_PASSWORD"
+Environment="MYSQL_DEPIAR_PASSWORD=${MYSQL_DEPIAR_PASSWORD}"
 ExecStart=/var/www/depiar/venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
 Restart=always
-RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
