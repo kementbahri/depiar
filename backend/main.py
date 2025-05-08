@@ -7,18 +7,18 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from sqlalchemy.orm import Session
 from typing import List
-import models
-import schemas
-from database import SessionLocal, engine
-from auth import get_current_user
-from .routers import auth, domains, emails, databases, customers, email_accounts, ssl, import_router, dns, ftp, tasks, logs, service_plans, reseller_plans, users, resellers, settings, reports, ssh, subdomains, database_management, backup, vendors, monitoring, software, files, webhooks, integrations
-from .middleware import ErrorHandlerMiddleware, RequestLoggingMiddleware, ValidationErrorHandlerMiddleware, LanguageMiddleware, AuthMiddleware
+from backend import models
+from backend import schemas
+from backend.database import SessionLocal, engine
+from backend.auth import get_current_user
+from backend.routers import auth, domains, emails, databases, customers, email_accounts, ssl, import_router, dns, ftp, tasks, logs, service_plans, reseller_plans, users, resellers, settings, reports, ssh, subdomains, database_management, backup, vendors, monitoring, software, files, webhooks, integrations
+from backend.middleware import ErrorHandlerMiddleware, RequestLoggingMiddleware, ValidationErrorHandlerMiddleware, LanguageMiddleware, AuthMiddleware
 import os
 from dotenv import load_dotenv
-from .utils.i18n import get_translation, get_language_from_request
-from .services.backup_service import start_backup_scheduler
-from .services.ssl_service import start_ssl_renewal_scheduler
-from .services.monitoring_service import start_monitoring_scheduler
+from backend.utils.i18n import get_translation, get_language_from_request
+from backend.services.backup_service import start_backup_scheduler
+from backend.services.ssl_service import start_ssl_renewal_scheduler
+from backend.services.monitoring_service import start_monitoring_scheduler
 import logging
 
 load_dotenv()
