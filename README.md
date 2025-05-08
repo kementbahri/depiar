@@ -1,52 +1,64 @@
-# Depiar - Hosting Control Panel
+# Depiar
 
-Depiar, modern ve kullanıcı dostu bir hosting kontrol panelidir. PHP, MySQL, Nginx/Apache yönetimi, SSL sertifikaları, e-posta hesapları ve daha fazlasını tek bir arayüzden yönetmenizi sağlar.
+Depiar, web hosting ve sunucu yönetimi için geliştirilmiş kapsamlı bir kontrol panelidir.
 
 ## Özellikler
 
-- 🚀 Modern ve Hızlı Arayüz
-- 🔒 Güvenli Kimlik Doğrulama
-- 🌐 Domain ve DNS Yönetimi
-- 📧 E-posta Hesap Yönetimi
-- 💾 Veritabanı Yönetimi
-- 🔐 SSL Sertifika Yönetimi
-- 📁 Dosya Yöneticisi
-- 📊 İstatistik ve Raporlama
-- 🔄 Otomatik Yedekleme
-- 🌍 Çoklu Dil Desteği
+- Domain yönetimi
+- DNS yönetimi
+- SSL sertifika yönetimi
+- Veritabanı yönetimi
+- Dosya yönetimi
+- FTP hesap yönetimi
+- E-posta yönetimi
+- Yedekleme ve geri yükleme
+- Performans izleme
+- Güvenlik yönetimi
 
 ## Kurulum
 
-Detaylı kurulum talimatları için [Deployment Kılavuzu](docs/deployment.md) dosyasını inceleyin.
+Detaylı kurulum talimatları için [Kurulum Kılavuzu](docs/deployment.md) dosyasını inceleyebilirsiniz.
+
+### Gereksinimler
+
+- Python 3.8+
+- MySQL 5.7+
+- Nginx
+- Redis
+- Node.js 14+
 
 ### Hızlı Başlangıç
 
-1. Gereksinimleri yükleyin:
+1. Projeyi klonlayın:
 ```bash
+git clone https://github.com/kementbahri/depiar.git
+cd depiar
+```
+
+2. Backend bağımlılıklarını yükleyin:
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-2. Veritabanını oluşturun:
+3. Frontend bağımlılıklarını yükleyin:
 ```bash
-python backend/setup_server.py
-```
-
-3. Uygulamayı başlatın:
-```bash
-cd backend
-uvicorn main:app --reload
-```
-
-4. Frontend'i başlatın:
-```bash
-cd frontend
+cd ../frontend
 npm install
+```
+
+4. Geliştirme sunucusunu başlatın:
+```bash
+# Backend
+cd ../backend
+uvicorn main:app --reload
+
+# Frontend
+cd ../frontend
 npm start
 ```
-
-## API Dokümantasyonu
-
-API dokümantasyonu için [API Dokümantasyonu](backend/docs/api.md) dosyasını inceleyin.
 
 ## Katkıda Bulunma
 
@@ -58,13 +70,17 @@ API dokümantasyonu için [API Dokümantasyonu](backend/docs/api.md) dosyasını
 
 ## Lisans
 
-Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasını inceleyin.
+Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasını inceleyebilirsiniz.
 
 ## İletişim
 
-- Website: [https://depiar.com](https://depiar.com)
-- E-posta: support@depiar.com
-- GitHub: [https://github.com/your-repo/depiar](https://github.com/your-repo/depiar)
+Kement Bahri - [@kementbahri](https://github.com/kementbahri)
+
+Proje Linki: [https://github.com/kementbahri/depiar](https://github.com/kementbahri/depiar)
+
+## API Dokümantasyonu
+
+API dokümantasyonu için [API Dokümantasyonu](backend/docs/api.md) dosyasını inceleyin.
 
 ## Teşekkürler
 
@@ -72,4 +88,4 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 - React
 - Material-UI
 - SQLAlchemy
-- Ve diğer tüm açık kaynak projelere teşekkürler 
+- Ve diğer tüm açık kaynak projelere teşekkürler
