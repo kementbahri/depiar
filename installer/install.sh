@@ -133,6 +133,63 @@ apt install -y \
     php8.1-xmlrpc \
     php8.1-xsl
 
+# Nginx'i yeniden yükle
+echo -e "${YELLOW}Nginx yeniden yükleniyor...${NC}"
+apt remove --purge nginx nginx-common nginx-full -y
+apt autoremove -y
+apt install nginx -y
+
+# Nginx yapılandırmasını düzenle
+echo -e "${YELLOW}Nginx yapılandırması düzenleniyor...${NC}"
+
+# Nginx ana yapılandırmasını düzenle
+cat > /etc/nginx/nginx.conf << 'EOL'
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+
+events {
+    worker_connections 768;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+    include /etc/nginx/sites-enabled/*;
+}
+EOL
+
+# Nginx site yapılandırmasını oluştur
+cat > /etc/nginx/sites-available/depiar << 'EOL'
+server {
+    listen 80 default_server;
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+EOL
+
+# Nginx site yapılandırmasını etkinleştir
+ln -sf /etc/nginx/sites-available/depiar /etc/nginx/sites-enabled/
+rm -f /etc/nginx/sites-enabled/default
+
+# Nginx dizinlerini oluştur
+mkdir -p /var/log/nginx
+chown -R www-data:www-data /var/log/nginx
+
+# Nginx yapılandırmasını test et
+nginx -t
+
+# Servisleri yeniden başlat
+systemctl restart nginx
+systemctl restart mysql
+
 # MySQL root şifresini oluştur
 echo -e "${YELLOW}MySQL root şifresi oluşturuluyor...${NC}"
 # Özel karakterler içermeyen güvenli şifre oluştur
@@ -259,60 +316,6 @@ EOL
 
 systemctl daemon-reload
 systemctl enable depiar
-
-# Nginx yapılandırmasını düzenle
-echo -e "${YELLOW}Nginx yapılandırması düzenleniyor...${NC}"
-
-# Nginx ana yapılandırmasını yedekle
-cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
-
-# Nginx ana yapılandırmasını düzenle
-cat > /etc/nginx/nginx.conf << 'EOL'
-user www-data;
-worker_processes auto;
-pid /run/nginx.pid;
-
-events {
-    worker_connections 768;
-}
-
-http {
-    include /etc/nginx/mime.types;
-    default_type application/octet-stream;
-    access_log /var/log/nginx/access.log;
-    error_log /var/log/nginx/error.log;
-    include /etc/nginx/sites-enabled/*;
-}
-EOL
-
-# Nginx site yapılandırmasını oluştur
-cat > /etc/nginx/sites-available/depiar << 'EOL'
-server {
-    listen 80 default_server;
-    server_name _;
-
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
-EOL
-
-# Nginx site yapılandırmasını etkinleştir
-ln -sf /etc/nginx/sites-available/depiar /etc/nginx/sites-enabled/
-rm -f /etc/nginx/sites-enabled/default
-
-# Nginx dizinlerini oluştur
-mkdir -p /var/log/nginx
-chown -R www-data:www-data /var/log/nginx
-
-# Nginx yapılandırmasını test et
-nginx -t
-
-# Servisleri yeniden başlat
-systemctl restart nginx
-systemctl restart mysql
 
 # SSL sertifikası al (eğer domain girilmişse)
 if [[ $DOMAIN_OR_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
