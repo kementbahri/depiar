@@ -136,6 +136,13 @@ echo -e "${YELLOW}MySQL root şifresi oluşturuluyor...${NC}"
 MYSQL_ROOT_PASSWORD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 16)
 MYSQL_DEPIAR_PASSWORD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 16)
 
+# Şifreleri göster
+echo -e "${GREEN}Oluşturulan şifreler:${NC}"
+echo -e "MySQL Root Şifresi: ${GREEN}$MYSQL_ROOT_PASSWORD${NC}"
+echo -e "MySQL Depiar Şifresi: ${GREEN}$MYSQL_DEPIAR_PASSWORD${NC}"
+echo -e "${YELLOW}Bu şifreleri not alın!${NC}"
+sleep 5
+
 # MySQL'i yapılandır
 echo -e "${YELLOW}MySQL yapılandırılıyor...${NC}"
 
