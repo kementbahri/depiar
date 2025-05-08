@@ -21,21 +21,22 @@ echo
 echo -e "${YELLOW}Sistem güncellemeleri yapılıyor...${NC}"
 apt update && apt upgrade -y
 
-# MySQL'i tamamen kaldır
-echo -e "${YELLOW}MySQL tamamen kaldırılıyor...${NC}"
-systemctl stop mysql 2>/dev/null || true
-systemctl stop mysqld 2>/dev/null || true
+# MySQL kontrolü ve kaldırma
+echo -e "${YELLOW}MySQL durumu kontrol ediliyor...${NC}"
+if systemctl is-active --quiet mysql || systemctl is-active --quiet mysqld; then
+    echo -e "${YELLOW}MySQL servisi çalışıyor, durduruluyor...${NC}"
+    systemctl stop mysql 2>/dev/null || true
+    systemctl stop mysqld 2>/dev/null || true
+fi
 
-# Tüm MySQL paketlerini kaldır
-echo -e "${YELLOW}MySQL paketleri kaldırılıyor...${NC}"
-apt remove --purge mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-* -y
-apt remove --purge mariadb-server mariadb-client mariadb-common mariadb-server-core-* mariadb-client-core-* -y
-apt remove --purge mysql-* mariadb-* -y
-
-# Otomatik kaldırma ve temizleme
-echo -e "${YELLOW}Sistem temizleniyor...${NC}"
-apt autoremove -y
-apt autoclean
+if dpkg -l | grep -E 'mysql|mariadb' > /dev/null; then
+    echo -e "${YELLOW}MySQL paketleri bulundu, kaldırılıyor...${NC}"
+    apt remove --purge mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-* -y
+    apt remove --purge mariadb-server mariadb-client mariadb-common mariadb-server-core-* mariadb-client-core-* -y
+    apt remove --purge mysql-* mariadb-* -y
+    apt autoremove -y
+    apt autoclean
+fi
 
 # MySQL dizinlerini temizle
 echo -e "${YELLOW}MySQL dizinleri temizleniyor...${NC}"
