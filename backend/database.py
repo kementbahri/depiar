@@ -1,38 +1,33 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.pool import QueuePool
+from sqlalchemy.orm import sessionmaker
 import os
-from dotenv import load_dotenv
 
-# .env dosyasını yükle
-load_dotenv()
+# Veritabanı bağlantı bilgileri
+DB_USER = "depiar"
+DB_PASSWORD = os.getenv("MYSQL_DEPIAR_PASSWORD", "Q8UOULk10w0SglJn")  # Varsayılan şifre
+DB_HOST = "localhost"
+DB_NAME = "depiar"
 
-# Veritabanı URL'sini al
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Veritabanı URL'si
+SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 
-# Engine oluştur
+# Veritabanı motoru
 engine = create_engine(
-    DATABASE_URL,
-    poolclass=QueuePool,
+    SQLALCHEMY_DATABASE_URL,
+    pool_pre_ping=True,
+    pool_recycle=3600,
     pool_size=5,
-    max_overflow=10,
-    pool_timeout=30,
-    pool_recycle=1800,
-    pool_pre_ping=True  # Bağlantı kopması durumunda otomatik yeniden bağlanma
+    max_overflow=10
 )
 
-# Session factory
-SessionLocal = scoped_session(sessionmaker(
-    bind=engine,
-    autocommit=False,
-    autoflush=False
-))
+# Oturum oluşturucu
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base class
+# Base sınıfı
 Base = declarative_base()
 
-# Veritabanı bağlantısı için context manager
+# Veritabanı bağlantısı için yardımcı fonksiyon
 def get_db():
     db = SessionLocal()
     try:
