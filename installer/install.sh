@@ -223,11 +223,29 @@ source venv/bin/activate
 echo -e "${YELLOW}Python paketleri yükleniyor...${NC}"
 pip install -r requirements.txt
 
+# PYTHONPATH'i ayarla
+echo -e "${YELLOW}PYTHONPATH ayarlanıyor...${NC}"
+export PYTHONPATH=/var/www/depiar:$PYTHONPATH
+
 # Servis dosyasını kopyala
 echo -e "${YELLOW}Servis dosyası kopyalanıyor...${NC}"
-cp installer/depiar.service /etc/systemd/system/
-systemctl daemon-reload
-systemctl enable depiar
+cat > /etc/systemd/system/depiar.service << 'EOL'
+[Unit]
+Description=Depiar API Service
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/depiar
+Environment="PATH=/var/www/depiar/venv/bin"
+Environment="PYTHONPATH=/var/www/depiar"
+ExecStart=/var/www/depiar/venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOL
 
 # Nginx yapılandırmasını kopyala
 echo -e "${YELLOW}Nginx yapılandırması kopyalanıyor...${NC}"
@@ -300,6 +318,9 @@ fi
 
 # Admin kullanıcısını oluştur
 echo -e "${YELLOW}Admin kullanıcısı oluşturuluyor...${NC}"
+cd /var/www/depiar
+source venv/bin/activate
+export PYTHONPATH=/var/www/depiar:$PYTHONPATH
 python3 -c "
 from backend.models import User
 from backend.database import SessionLocal
