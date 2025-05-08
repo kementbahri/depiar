@@ -138,17 +138,39 @@ MYSQL_DEPIAR_PASSWORD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 1
 
 # MySQL'i yapılandır
 echo -e "${YELLOW}MySQL yapılandırılıyor...${NC}"
-# Önce root şifresini sıfırla
-mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';"
-mysql -e "FLUSH PRIVILEGES;"
 
-# Sonra yeni şifreyi ayarla
-mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_ROOT_PASSWORD';"
-mysql -e "CREATE DATABASE IF NOT EXISTS depiar CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-mysql -e "DROP USER IF EXISTS 'depiar'@'localhost';"
-mysql -e "CREATE USER 'depiar'@'localhost' IDENTIFIED BY '$MYSQL_DEPIAR_PASSWORD';"
-mysql -e "GRANT ALL PRIVILEGES ON depiar.* TO 'depiar'@'localhost';"
-mysql -e "FLUSH PRIVILEGES;"
+# MySQL servisini durdur
+systemctl stop mysql
+
+# MySQL'i güvenli modda başlat
+echo -e "${YELLOW}MySQL güvenli modda başlatılıyor...${NC}"
+mysqld_safe --skip-grant-tables --skip-networking &
+sleep 5
+
+# Root şifresini sıfırla
+echo -e "${YELLOW}Root şifresi sıfırlanıyor...${NC}"
+mysql -u root << EOF
+FLUSH PRIVILEGES;
+ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';
+FLUSH PRIVILEGES;
+EOF
+
+# MySQL'i durdur ve normal modda başlat
+echo -e "${YELLOW}MySQL normal modda başlatılıyor...${NC}"
+killall mysqld
+sleep 2
+systemctl start mysql
+sleep 5
+
+# Veritabanı ve kullanıcı oluştur
+echo -e "${YELLOW}Veritabanı ve kullanıcı oluşturuluyor...${NC}"
+mysql -u root -p"$MYSQL_ROOT_PASSWORD" << EOF
+CREATE DATABASE IF NOT EXISTS depiar CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+DROP USER IF EXISTS 'depiar'@'localhost';
+CREATE USER 'depiar'@'localhost' IDENTIFIED BY '$MYSQL_DEPIAR_PASSWORD';
+GRANT ALL PRIVILEGES ON depiar.* TO 'depiar'@'localhost';
+FLUSH PRIVILEGES;
+EOF
 
 # Proje dizinini oluştur
 echo -e "${YELLOW}Proje dizini oluşturuluyor...${NC}"
