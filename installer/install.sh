@@ -82,7 +82,7 @@ collation-server = utf8mb4_unicode_ci
 
 # Performans ayarları
 innodb_buffer_pool_size = 256M
-innodb_log_file_size = 64M
+innodb_redo_log_capacity = 134217728
 innodb_flush_log_at_trx_commit = 2
 innodb_flush_method = O_DIRECT
 
@@ -90,6 +90,9 @@ innodb_flush_method = O_DIRECT
 max_connections = 100
 wait_timeout = 28800
 interactive_timeout = 28800
+
+# Güvenlik ayarları
+default_authentication_plugin = caching_sha2_password
 
 [client]
 default-character-set = utf8mb4
@@ -160,7 +163,7 @@ sleep 5
 echo -e "${YELLOW}Root şifresi sıfırlanıyor...${NC}"
 mysql -u root << EOF
 FLUSH PRIVILEGES;
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_ROOT_PASSWORD';
+ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY '$MYSQL_ROOT_PASSWORD';
 FLUSH PRIVILEGES;
 EOF
 
@@ -176,7 +179,7 @@ echo -e "${YELLOW}Veritabanı ve kullanıcı oluşturuluyor...${NC}"
 mysql -u root -p"$MYSQL_ROOT_PASSWORD" << EOF
 CREATE DATABASE IF NOT EXISTS depiar CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 DROP USER IF EXISTS 'depiar'@'localhost';
-CREATE USER 'depiar'@'localhost' IDENTIFIED BY '$MYSQL_DEPIAR_PASSWORD';
+CREATE USER 'depiar'@'localhost' IDENTIFIED WITH caching_sha2_password BY '$MYSQL_DEPIAR_PASSWORD';
 GRANT ALL PRIVILEGES ON depiar.* TO 'depiar'@'localhost';
 FLUSH PRIVILEGES;
 EOF
