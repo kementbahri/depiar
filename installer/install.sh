@@ -139,10 +139,15 @@ apt remove --purge nginx nginx-common nginx-full -y
 apt autoremove -y
 apt install nginx -y
 
-# Nginx yapılandırmasını düzenle
-echo -e "${YELLOW}Nginx yapılandırması düzenleniyor...${NC}"
+# Nginx dizinlerini oluştur
+echo -e "${YELLOW}Nginx dizinleri oluşturuluyor...${NC}"
+mkdir -p /etc/nginx/sites-available
+mkdir -p /etc/nginx/sites-enabled
+mkdir -p /var/log/nginx
+chown -R www-data:www-data /var/log/nginx
 
 # Nginx ana yapılandırmasını düzenle
+echo -e "${YELLOW}Nginx ana yapılandırması düzenleniyor...${NC}"
 cat > /etc/nginx/nginx.conf << 'EOL'
 user www-data;
 worker_processes auto;
@@ -162,6 +167,7 @@ http {
 EOL
 
 # Nginx site yapılandırmasını oluştur
+echo -e "${YELLOW}Nginx site yapılandırması oluşturuluyor...${NC}"
 cat > /etc/nginx/sites-available/depiar << 'EOL'
 server {
     listen 80 default_server;
@@ -176,18 +182,29 @@ server {
 EOL
 
 # Nginx site yapılandırmasını etkinleştir
+echo -e "${YELLOW}Nginx site yapılandırması etkinleştiriliyor...${NC}"
 ln -sf /etc/nginx/sites-available/depiar /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 
-# Nginx dizinlerini oluştur
-mkdir -p /var/log/nginx
-chown -R www-data:www-data /var/log/nginx
-
 # Nginx yapılandırmasını test et
+echo -e "${YELLOW}Nginx yapılandırması test ediliyor...${NC}"
 nginx -t
 
-# Servisleri yeniden başlat
+# Nginx servisini başlat
+echo -e "${YELLOW}Nginx servisi başlatılıyor...${NC}"
 systemctl restart nginx
+systemctl enable nginx
+
+# Servislerin durumunu kontrol et
+echo -e "${YELLOW}Servislerin durumu kontrol ediliyor...${NC}"
+if ! systemctl is-active --quiet nginx; then
+    echo -e "${RED}Nginx başlatılamadı!${NC}"
+    journalctl -u nginx -n 50
+    exit 1
+fi
+
+# MySQL servisini başlat
+echo -e "${YELLOW}MySQL servisi başlatılıyor...${NC}"
 systemctl restart mysql
 
 # MySQL root şifresini oluştur
