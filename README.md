@@ -1,6 +1,6 @@
 # Depiar
 
-Depiar, web hosting ve sunucu yönetimi için geliştirilmiş kapsamlı bir kontrol panelidir.
+Depiar, web hosting ve sunucu yönetimi için geliştirilmiş açık kaynaklı kapsamlı bir kontrol panelidir.
 
 ## Özellikler
 
